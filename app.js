@@ -322,7 +322,7 @@ function renderSessionPage() {
   el.querySelector("#session-form").addEventListener("submit", handleSessionSubmit);
 }
 
-function handleSessionSubmit(e) {
+async function handleSessionSubmit(e) {
   e.preventDefault();
   const form = e.currentTarget;
   const data = new FormData(form);
@@ -355,6 +355,7 @@ function handleSessionSubmit(e) {
   const friendTag = data.get("friendTag") || "";
   const photoFile = data.get("photoFile");
   const hasPhoto = photoFile && photoFile.size > 0;
+  const photoDataUrl = hasPhoto ? await readFileAsDataUrl(photoFile) : "";
   const comment = data.get("comment").trim();
 
   let xp = XP_BASE[type] ?? 50;
@@ -375,6 +376,7 @@ function handleSessionSubmit(e) {
     duration,
     friendTag,
     photoName: hasPhoto ? photoFile.name : "",
+    photoDataUrl,
     comment,
     skills,
     xp,
@@ -392,6 +394,9 @@ function handleSessionSubmit(e) {
   const dateInput = form.querySelector('input[name="sessionDate"]');
   if (dateInput) dateInput.value = todayIso;
 
+  alert(`Séance enregistrée avec succès (+${xp} XP) !`);
+  activePage = "home";
+  renderPagesVisibility();
   renderAllPages();
 }
 
@@ -455,6 +460,7 @@ function renderSessionItem(session) {
       <div class="chips">${session.skills.map((s) => `<span class="chip">${s}</span>`).join("")}</div>
       ${session.friendTag ? `<p class="notice">🤝 Ami taggé: ${session.friendTag}</p>` : ""}
       ${session.photoName ? `<p class="notice">📷 Photo: ${session.photoName}</p>` : ""}
+      ${session.photoDataUrl ? `<img class="session-photo" src="${session.photoDataUrl}" alt="Photo de séance ${session.photoName || ""}" />` : ""}
       ${session.comment ? `<p>“${session.comment}”</p>` : ""}
     </div>
   `;
@@ -560,6 +566,15 @@ function sessionLabel(type) {
   }[type] ?? "Séance";
 }
 
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result || "");
+    reader.onerror = () => reject(new Error("Erreur de lecture du fichier"));
+    reader.readAsDataURL(file);
+  });
+}
 
 function getTodayIsoDate() {
   return new Date().toISOString().slice(0, 10);
