@@ -17,6 +17,11 @@ Prototype mobile-first d'une application gamifiée pour suivre la progression au
   - sélection de date (calendrier), limitée à aujourd'hui ou avant
   - tagging d'un ami depuis la communauté
   - upload d'une photo (fichier image) en option
+<<<<<<< HEAD
+=======
+  - pop-up de confirmation puis retour automatique vers l'accueil
+- Affichage de la photo dans l'historique des dernières séances
+>>>>>>> 37b91b6 (feat: confirm session save and show uploaded photo in recent sessions)
 - Génération de défis hebdomadaires
 - Leaderboard (amis + club)
 - Données persistées en local (localStorage)

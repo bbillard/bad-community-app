@@ -188,6 +188,18 @@ button.secondary {
   border: 1px solid rgba(168, 209, 250, 0.25);
 }
 
+<<<<<<< HEAD
+=======
+.session-photo {
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid rgba(164, 209, 248, 0.35);
+  margin-top: 0.45rem;
+}
+
+>>>>>>> 37b91b6 (feat: confirm session save and show uploaded photo in recent sessions)
 .skill-row {
   margin-bottom: 0.65rem;
   padding: 0.55rem;
