@@ -13,9 +13,16 @@ Prototype mobile-first d'une application gamifiée pour suivre la progression au
   - historique récent des séances
   - badges débloqués
   - bouton vers la page d'ajout de séance
+<<<<<<< HEAD
 - Page Création de séance avec anti-abus MVP:
   - limite de 3 séances par jour
   - validation coéquipier pour entraînements collectifs
+=======
+- Page Création de séance avec:
+  - sélection de date (calendrier), limitée à aujourd'hui ou avant
+  - tagging d'un ami depuis la communauté
+  - upload d'une photo (fichier image) en option
+>>>>>>> 7417ca5 (feat: update session form with friend tagging, file upload and date picker)
 - Génération de défis hebdomadaires
 - Leaderboard (amis + club)
 - Données persistées en local (localStorage)

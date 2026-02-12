@@ -1,6 +1,9 @@
 const STORAGE_KEY = "badminton-progress-mvp";
+<<<<<<< HEAD
 const DAILY_LIMIT = 3;
 
+=======
+>>>>>>> 7417ca5 (feat: update session form with friend tagging, file upload and date picker)
 const SKILLS = ["Technique", "Déplacements", "Tactique", "Physique", "Matchs"];
 
 const SKILL_COLORS = {
@@ -169,33 +172,60 @@ function bootstrapDemoProgress() {
       id: crypto.randomUUID(),
       type: "training",
       duration: 75,
+<<<<<<< HEAD
       validated: true,
       photo: false,
       comment: "Routine services + retours croisés.",
       skills: ["Technique", "Déplacements"],
       xp: 85,
+=======
+      friendTag: "Lucas",
+      photoName: "",
+      comment: "Routine services + retours croisés.",
+      skills: ["Technique", "Déplacements"],
+      xp: 85,
+      performedAt: dateDaysAgo(1).slice(0, 10),
+>>>>>>> 7417ca5 (feat: update session form with friend tagging, file upload and date picker)
       createdAt: dateDaysAgo(1),
     },
     {
       id: crypto.randomUUID(),
       type: "cardio",
       duration: 50,
+<<<<<<< HEAD
       validated: false,
       photo: true,
       comment: "Fractionné + gainage.",
       skills: ["Physique"],
       xp: 70,
+=======
+      friendTag: "",
+      photoName: "cardio.jpg",
+      comment: "Fractionné + gainage.",
+      skills: ["Physique"],
+      xp: 70,
+      performedAt: dateDaysAgo(2).slice(0, 10),
+>>>>>>> 7417ca5 (feat: update session form with friend tagging, file upload and date picker)
       createdAt: dateDaysAgo(2),
     },
     {
       id: crypto.randomUUID(),
       type: "match_practice",
       duration: 90,
+<<<<<<< HEAD
       validated: true,
       photo: false,
       comment: "Match en 3 sets contre Lucas.",
       skills: ["Tactique", "Matchs"],
       xp: 123,
+=======
+      friendTag: "Emma",
+      photoName: "",
+      comment: "Match en 3 sets contre Lucas.",
+      skills: ["Tactique", "Matchs"],
+      xp: 123,
+      performedAt: dateDaysAgo(3).slice(0, 10),
+>>>>>>> 7417ca5 (feat: update session form with friend tagging, file upload and date picker)
       createdAt: dateDaysAgo(3),
     },
   ];
@@ -259,6 +289,7 @@ function renderSkillRow(skill) {
 
 function renderSessionPage() {
   const el = document.getElementById("page-session");
+<<<<<<< HEAD
 
   el.innerHTML = `
     <h2>Ajouter une séance</h2>
@@ -266,6 +297,23 @@ function renderSessionPage() {
 
     <form id="session-form" class="stack">
       <label>
+=======
+  const todayIso = getTodayIsoDate();
+  const friendOptions = seededFriends
+    .map((friend) => `<option value="${friend.name}">${friend.name}</option>`)
+    .join("");
+
+  el.innerHTML = `
+    <h2>Ajouter une séance</h2>
+
+    <form id="session-form" class="stack">
+      <label>
+        Date de la séance
+        <input type="date" name="sessionDate" max="${todayIso}" value="${todayIso}" required />
+      </label>
+
+      <label>
+>>>>>>> 7417ca5 (feat: update session form with friend tagging, file upload and date picker)
         Type de séance
         <select name="type" required>
           <option value="training">Entraînement badminton</option>
@@ -287,12 +335,26 @@ function renderSessionPage() {
         </div>
       </fieldset>
 
+<<<<<<< HEAD
       <label class="inline">
         <input type="checkbox" name="validated" /> Séance validée par coéquipier / membre du club
       </label>
 
       <label class="inline">
         <input type="checkbox" name="photo" /> Photo ajoutée (facultatif)
+=======
+      <label>
+        Tagger un ami
+        <select name="friendTag">
+          <option value="">Aucun ami taggé</option>
+          ${friendOptions}
+        </select>
+      </label>
+
+      <label>
+        Photo (facultatif)
+        <input type="file" name="photoFile" accept="image/*" />
+>>>>>>> 7417ca5 (feat: update session form with friend tagging, file upload and date picker)
       </label>
 
       <label>
@@ -314,6 +376,7 @@ function handleSessionSubmit(e) {
   const data = new FormData(form);
   const feedback = form.querySelector("#session-feedback");
 
+<<<<<<< HEAD
   const todayCount = appState.sessions.filter((s) => isToday(s.createdAt)).length;
   if (todayCount >= DAILY_LIMIT) {
     feedback.className = "warning";
@@ -324,6 +387,12 @@ function handleSessionSubmit(e) {
   const type = data.get("type");
   const duration = Number(data.get("duration"));
   const skills = data.getAll("skills");
+=======
+  const type = data.get("type");
+  const duration = Number(data.get("duration"));
+  const skills = data.getAll("skills");
+  const sessionDate = data.get("sessionDate");
+>>>>>>> 7417ca5 (feat: update session form with friend tagging, file upload and date picker)
 
   if (!skills.length) {
     feedback.className = "error";
@@ -331,15 +400,39 @@ function handleSessionSubmit(e) {
     return;
   }
 
+<<<<<<< HEAD
   const validated = data.get("validated") === "on";
   const photo = data.get("photo") === "on";
+=======
+  if (!sessionDate) {
+    feedback.className = "error";
+    feedback.textContent = "Sélectionnez une date pour la séance.";
+    return;
+  }
+
+  const todayIso = getTodayIsoDate();
+  if (sessionDate > todayIso) {
+    feedback.className = "error";
+    feedback.textContent = "La date de séance ne peut pas être dans le futur.";
+    return;
+  }
+
+  const friendTag = data.get("friendTag") || "";
+  const photoFile = data.get("photoFile");
+  const hasPhoto = photoFile && photoFile.size > 0;
+>>>>>>> 7417ca5 (feat: update session form with friend tagging, file upload and date picker)
   const comment = data.get("comment").trim();
 
   let xp = XP_BASE[type] ?? 50;
   if (duration < 45) xp *= 0.8;
   if (duration >= 90) xp *= 1.2;
+<<<<<<< HEAD
   if (validated) xp += 15;
   if (photo) xp += 10;
+=======
+  if (friendTag) xp += 15;
+  if (hasPhoto) xp += 10;
+>>>>>>> 7417ca5 (feat: update session form with friend tagging, file upload and date picker)
   xp = Math.round(xp);
 
   const perSkill = Math.max(1, Math.round(xp / skills.length));
@@ -351,11 +444,20 @@ function handleSessionSubmit(e) {
     id: crypto.randomUUID(),
     type,
     duration,
+<<<<<<< HEAD
     validated,
     photo,
     comment,
     skills,
     xp,
+=======
+    friendTag,
+    photoName: hasPhoto ? photoFile.name : "",
+    comment,
+    skills,
+    xp,
+    performedAt: sessionDate,
+>>>>>>> 7417ca5 (feat: update session form with friend tagging, file upload and date picker)
     createdAt: new Date().toISOString(),
   });
 
@@ -366,6 +468,11 @@ function handleSessionSubmit(e) {
   feedback.className = "notice";
   feedback.textContent = `Séance enregistrée: +${xp} XP 🎉`;
   form.reset();
+<<<<<<< HEAD
+=======
+  const dateInput = form.querySelector('input[name="sessionDate"]');
+  if (dateInput) dateInput.value = todayIso;
+>>>>>>> 7417ca5 (feat: update session form with friend tagging, file upload and date picker)
 
   renderAllPages();
 }
@@ -419,11 +526,25 @@ function renderRankItem(player, idx) {
 }
 
 function renderSessionItem(session) {
+<<<<<<< HEAD
   return `
     <div class="session-item">
       <strong>${sessionLabel(session.type)} • +${session.xp} XP</strong>
       <p class="notice">${session.duration} min — ${new Date(session.createdAt).toLocaleDateString("fr-FR")}</p>
       <div class="chips">${session.skills.map((s) => `<span class="chip">${s}</span>`).join("")}</div>
+=======
+  const dateLabel = session.performedAt
+    ? new Date(`${session.performedAt}T12:00:00`).toLocaleDateString("fr-FR")
+    : new Date(session.createdAt).toLocaleDateString("fr-FR");
+
+  return `
+    <div class="session-item">
+      <strong>${sessionLabel(session.type)} • +${session.xp} XP</strong>
+      <p class="notice">${session.duration} min — ${dateLabel}</p>
+      <div class="chips">${session.skills.map((s) => `<span class="chip">${s}</span>`).join("")}</div>
+      ${session.friendTag ? `<p class="notice">🤝 Ami taggé: ${session.friendTag}</p>` : ""}
+      ${session.photoName ? `<p class="notice">📷 Photo: ${session.photoName}</p>` : ""}
+>>>>>>> 7417ca5 (feat: update session form with friend tagging, file upload and date picker)
       ${session.comment ? `<p>“${session.comment}”</p>` : ""}
     </div>
   `;
@@ -437,7 +558,11 @@ function evaluateBadges() {
   unlockBadge(sessions >= 10, "🔥 Régulier: 10 séances complétées");
   unlockBadge(totalXp >= 1000, "💎 1000 XP atteints");
 
+<<<<<<< HEAD
   const uniqueDays = new Set(appState.sessions.map((s) => s.createdAt.slice(0, 10))).size;
+=======
+  const uniqueDays = new Set(appState.sessions.map((s) => (s.performedAt || s.createdAt.slice(0, 10)))).size;
+>>>>>>> 7417ca5 (feat: update session form with friend tagging, file upload and date picker)
   unlockBadge(uniqueDays >= 7, "📅 Persévérant: 7 jours d'activité");
 }
 
@@ -529,6 +654,7 @@ function sessionLabel(type) {
   }[type] ?? "Séance";
 }
 
+<<<<<<< HEAD
 function isToday(dateIso) {
   const d = new Date(dateIso);
   const now = new Date();
@@ -537,6 +663,11 @@ function isToday(dateIso) {
     d.getMonth() === now.getMonth() &&
     d.getDate() === now.getDate()
   );
+=======
+
+function getTodayIsoDate() {
+  return new Date().toISOString().slice(0, 10);
+>>>>>>> 7417ca5 (feat: update session form with friend tagging, file upload and date picker)
 }
 
 function getCurrentWeekKey() {
