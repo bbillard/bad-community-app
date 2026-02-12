@@ -1,6 +1,4 @@
 const STORAGE_KEY = "badminton-progress-mvp";
-const DAILY_LIMIT = 3;
-
 const SKILLS = ["Technique", "Déplacements", "Tactique", "Physique", "Matchs"];
 
 const SKILL_COLORS = {
@@ -169,33 +167,36 @@ function bootstrapDemoProgress() {
       id: crypto.randomUUID(),
       type: "training",
       duration: 75,
-      validated: true,
-      photo: false,
+      friendTag: "Lucas",
+      photoName: "",
       comment: "Routine services + retours croisés.",
       skills: ["Technique", "Déplacements"],
       xp: 85,
+      performedAt: dateDaysAgo(1).slice(0, 10),
       createdAt: dateDaysAgo(1),
     },
     {
       id: crypto.randomUUID(),
       type: "cardio",
       duration: 50,
-      validated: false,
-      photo: true,
+      friendTag: "",
+      photoName: "cardio.jpg",
       comment: "Fractionné + gainage.",
       skills: ["Physique"],
       xp: 70,
+      performedAt: dateDaysAgo(2).slice(0, 10),
       createdAt: dateDaysAgo(2),
     },
     {
       id: crypto.randomUUID(),
       type: "match_practice",
       duration: 90,
-      validated: true,
-      photo: false,
+      friendTag: "Emma",
+      photoName: "",
       comment: "Match en 3 sets contre Lucas.",
       skills: ["Tactique", "Matchs"],
       xp: 123,
+      performedAt: dateDaysAgo(3).slice(0, 10),
       createdAt: dateDaysAgo(3),
     },
   ];
@@ -259,12 +260,20 @@ function renderSkillRow(skill) {
 
 function renderSessionPage() {
   const el = document.getElementById("page-session");
+  const todayIso = getTodayIsoDate();
+  const friendOptions = seededFriends
+    .map((friend) => `<option value="${friend.name}">${friend.name}</option>`)
+    .join("");
 
   el.innerHTML = `
     <h2>Ajouter une séance</h2>
-    <p class="notice">Garde-fou MVP: ${DAILY_LIMIT} séances max / jour.</p>
 
     <form id="session-form" class="stack">
+      <label>
+        Date de la séance
+        <input type="date" name="sessionDate" max="${todayIso}" value="${todayIso}" required />
+      </label>
+
       <label>
         Type de séance
         <select name="type" required>
@@ -287,12 +296,17 @@ function renderSessionPage() {
         </div>
       </fieldset>
 
-      <label class="inline">
-        <input type="checkbox" name="validated" /> Séance validée par coéquipier / membre du club
+      <label>
+        Tagger un ami
+        <select name="friendTag">
+          <option value="">Aucun ami taggé</option>
+          ${friendOptions}
+        </select>
       </label>
 
-      <label class="inline">
-        <input type="checkbox" name="photo" /> Photo ajoutée (facultatif)
+      <label>
+        Photo (facultatif)
+        <input type="file" name="photoFile" accept="image/*" />
       </label>
 
       <label>
@@ -314,16 +328,10 @@ function handleSessionSubmit(e) {
   const data = new FormData(form);
   const feedback = form.querySelector("#session-feedback");
 
-  const todayCount = appState.sessions.filter((s) => isToday(s.createdAt)).length;
-  if (todayCount >= DAILY_LIMIT) {
-    feedback.className = "warning";
-    feedback.textContent = "Limite quotidienne atteinte. Revenez demain pour une nouvelle séance.";
-    return;
-  }
-
   const type = data.get("type");
   const duration = Number(data.get("duration"));
   const skills = data.getAll("skills");
+  const sessionDate = data.get("sessionDate");
 
   if (!skills.length) {
     feedback.className = "error";
@@ -331,15 +339,29 @@ function handleSessionSubmit(e) {
     return;
   }
 
-  const validated = data.get("validated") === "on";
-  const photo = data.get("photo") === "on";
+  if (!sessionDate) {
+    feedback.className = "error";
+    feedback.textContent = "Sélectionnez une date pour la séance.";
+    return;
+  }
+
+  const todayIso = getTodayIsoDate();
+  if (sessionDate > todayIso) {
+    feedback.className = "error";
+    feedback.textContent = "La date de séance ne peut pas être dans le futur.";
+    return;
+  }
+
+  const friendTag = data.get("friendTag") || "";
+  const photoFile = data.get("photoFile");
+  const hasPhoto = photoFile && photoFile.size > 0;
   const comment = data.get("comment").trim();
 
   let xp = XP_BASE[type] ?? 50;
   if (duration < 45) xp *= 0.8;
   if (duration >= 90) xp *= 1.2;
-  if (validated) xp += 15;
-  if (photo) xp += 10;
+  if (friendTag) xp += 15;
+  if (hasPhoto) xp += 10;
   xp = Math.round(xp);
 
   const perSkill = Math.max(1, Math.round(xp / skills.length));
@@ -351,11 +373,12 @@ function handleSessionSubmit(e) {
     id: crypto.randomUUID(),
     type,
     duration,
-    validated,
-    photo,
+    friendTag,
+    photoName: hasPhoto ? photoFile.name : "",
     comment,
     skills,
     xp,
+    performedAt: sessionDate,
     createdAt: new Date().toISOString(),
   });
 
@@ -366,6 +389,8 @@ function handleSessionSubmit(e) {
   feedback.className = "notice";
   feedback.textContent = `Séance enregistrée: +${xp} XP 🎉`;
   form.reset();
+  const dateInput = form.querySelector('input[name="sessionDate"]');
+  if (dateInput) dateInput.value = todayIso;
 
   renderAllPages();
 }
@@ -419,11 +444,17 @@ function renderRankItem(player, idx) {
 }
 
 function renderSessionItem(session) {
+  const dateLabel = session.performedAt
+    ? new Date(`${session.performedAt}T12:00:00`).toLocaleDateString("fr-FR")
+    : new Date(session.createdAt).toLocaleDateString("fr-FR");
+
   return `
     <div class="session-item">
       <strong>${sessionLabel(session.type)} • +${session.xp} XP</strong>
-      <p class="notice">${session.duration} min — ${new Date(session.createdAt).toLocaleDateString("fr-FR")}</p>
+      <p class="notice">${session.duration} min — ${dateLabel}</p>
       <div class="chips">${session.skills.map((s) => `<span class="chip">${s}</span>`).join("")}</div>
+      ${session.friendTag ? `<p class="notice">🤝 Ami taggé: ${session.friendTag}</p>` : ""}
+      ${session.photoName ? `<p class="notice">📷 Photo: ${session.photoName}</p>` : ""}
       ${session.comment ? `<p>“${session.comment}”</p>` : ""}
     </div>
   `;
@@ -437,7 +468,7 @@ function evaluateBadges() {
   unlockBadge(sessions >= 10, "🔥 Régulier: 10 séances complétées");
   unlockBadge(totalXp >= 1000, "💎 1000 XP atteints");
 
-  const uniqueDays = new Set(appState.sessions.map((s) => s.createdAt.slice(0, 10))).size;
+  const uniqueDays = new Set(appState.sessions.map((s) => (s.performedAt || s.createdAt.slice(0, 10)))).size;
   unlockBadge(uniqueDays >= 7, "📅 Persévérant: 7 jours d'activité");
 }
 
@@ -529,14 +560,9 @@ function sessionLabel(type) {
   }[type] ?? "Séance";
 }
 
-function isToday(dateIso) {
-  const d = new Date(dateIso);
-  const now = new Date();
-  return (
-    d.getFullYear() === now.getFullYear() &&
-    d.getMonth() === now.getMonth() &&
-    d.getDate() === now.getDate()
-  );
+
+function getTodayIsoDate() {
+  return new Date().toISOString().slice(0, 10);
 }
 
 function getCurrentWeekKey() {
