@@ -322,11 +322,7 @@ function renderSessionPage() {
   el.querySelector("#session-form").addEventListener("submit", handleSessionSubmit);
 }
 
-<<<<<<< HEAD
-function handleSessionSubmit(e) {
-=======
 async function handleSessionSubmit(e) {
->>>>>>> 37b91b6 (feat: confirm session save and show uploaded photo in recent sessions)
   e.preventDefault();
   const form = e.currentTarget;
   const data = new FormData(form);
@@ -359,10 +355,7 @@ async function handleSessionSubmit(e) {
   const friendTag = data.get("friendTag") || "";
   const photoFile = data.get("photoFile");
   const hasPhoto = photoFile && photoFile.size > 0;
-<<<<<<< HEAD
-=======
   const photoDataUrl = hasPhoto ? await readFileAsDataUrl(photoFile) : "";
->>>>>>> 37b91b6 (feat: confirm session save and show uploaded photo in recent sessions)
   const comment = data.get("comment").trim();
 
   let xp = XP_BASE[type] ?? 50;
@@ -383,10 +376,7 @@ async function handleSessionSubmit(e) {
     duration,
     friendTag,
     photoName: hasPhoto ? photoFile.name : "",
-<<<<<<< HEAD
-=======
     photoDataUrl,
->>>>>>> 37b91b6 (feat: confirm session save and show uploaded photo in recent sessions)
     comment,
     skills,
     xp,
@@ -404,12 +394,9 @@ async function handleSessionSubmit(e) {
   const dateInput = form.querySelector('input[name="sessionDate"]');
   if (dateInput) dateInput.value = todayIso;
 
-<<<<<<< HEAD
-=======
   alert(`Séance enregistrée avec succès (+${xp} XP) !`);
   activePage = "home";
   renderPagesVisibility();
->>>>>>> 37b91b6 (feat: confirm session save and show uploaded photo in recent sessions)
   renderAllPages();
 }
 
@@ -473,10 +460,7 @@ function renderSessionItem(session) {
       <div class="chips">${session.skills.map((s) => `<span class="chip">${s}</span>`).join("")}</div>
       ${session.friendTag ? `<p class="notice">🤝 Ami taggé: ${session.friendTag}</p>` : ""}
       ${session.photoName ? `<p class="notice">📷 Photo: ${session.photoName}</p>` : ""}
-<<<<<<< HEAD
-=======
       ${session.photoDataUrl ? `<img class="session-photo" src="${session.photoDataUrl}" alt="Photo de séance ${session.photoName || ""}" />` : ""}
->>>>>>> 37b91b6 (feat: confirm session save and show uploaded photo in recent sessions)
       ${session.comment ? `<p>“${session.comment}”</p>` : ""}
     </div>
   `;
@@ -583,8 +567,6 @@ function sessionLabel(type) {
 }
 
 
-<<<<<<< HEAD
-=======
 function readFileAsDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -594,7 +576,6 @@ function readFileAsDataUrl(file) {
   });
 }
 
->>>>>>> 37b91b6 (feat: confirm session save and show uploaded photo in recent sessions)
 function getTodayIsoDate() {
   return new Date().toISOString().slice(0, 10);
 }
