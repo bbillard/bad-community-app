@@ -460,7 +460,7 @@ function renderSessionItem(session) {
       <div class="chips">${session.skills.map((s) => `<span class="chip">${s}</span>`).join("")}</div>
       ${session.friendTag ? `<p class="notice">🤝 Ami taggé: ${session.friendTag}</p>` : ""}
       ${session.photoName ? `<p class="notice">📷 Photo: ${session.photoName}</p>` : ""}
-      ${session.photoDataUrl ? `<img class="session-photo" src="${session.photoDataUrl}" alt="Photo de séance ${session.photoName || ""}" />` : ""}
+      ${session.photoDataUrl ? `<img class="session-photo" style="max-width:100%;height:auto;max-height:180px;display:block;object-fit:cover;" src="${session.photoDataUrl}" alt="Photo de séance ${session.photoName || ""}" />` : ""}
       ${session.comment ? `<p>“${session.comment}”</p>` : ""}
     </div>
   `;
