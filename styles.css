@@ -93,6 +93,20 @@ h3 {
   border: 2px solid rgba(255, 255, 255, 0.55);
 }
 
+.avatar-photo {
+  display: block;
+  width: 112px;
+  height: 112px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.65);
+}
+
+.profile-avatar-wrap {
+  display: inline-block;
+  margin-bottom: 0.8rem;
+}
+
 .hero-label {
   margin: 0;
   text-transform: uppercase;
@@ -146,6 +160,11 @@ button {
 button.secondary {
   background: linear-gradient(130deg, var(--accent), #2193e3);
   color: #07243b;
+}
+
+button.danger {
+  background: linear-gradient(130deg, #ff8f8f, #ff6666);
+  color: #3b0909;
 }
 
 .hidden { display: none; }
@@ -286,7 +305,7 @@ button.secondary {
   bottom: 0;
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 0.35rem;
   padding: 0.55rem;
   background: linear-gradient(180deg, rgba(9, 36, 65, 0.98), rgba(6, 25, 46, 0.98));

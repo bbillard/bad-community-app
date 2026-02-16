@@ -1,9 +1,9 @@
-const STORAGE_KEY = "badminton-progress-mvp";
-const SKILLS = ["Technique", "Déplacements", "Tactique", "Physique", "Matchs"];
+﻿const STORAGE_KEY = "badminton-progress-mvp";
+const SKILLS = ["Technique", "DÃ©placements", "Tactique", "Physique", "Matchs"];
 
 const SKILL_COLORS = {
   Technique: { start: "#34d1ff", end: "#1f8fff" },
-  "Déplacements": { start: "#8eff5a", end: "#44c92b" },
+  "DÃ©placements": { start: "#8eff5a", end: "#44c92b" },
   Tactique: { start: "#ff8f5a", end: "#ff4f2e" },
   Physique: { start: "#b88cff", end: "#7b58ff" },
   Matchs: { start: "#ffd24a", end: "#f7a600" },
@@ -43,15 +43,7 @@ function initNav() {
 function loadState() {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) {
-    return {
-      onboarded: false,
-      player: null,
-      sessions: [],
-      skillXp: Object.fromEntries(SKILLS.map((s) => [s, 0])),
-      badges: [],
-      challenges: [],
-      challengeWeek: null,
-    };
+    return getInitialState();
   }
 
   try {
@@ -87,6 +79,7 @@ function renderPagesVisibility() {
     session: document.getElementById("page-session"),
     challenges: document.getElementById("page-challenges"),
     community: document.getElementById("page-community"),
+    profile: document.getElementById("page-profile"),
   };
 
   Object.entries(pages).forEach(([key, el]) => {
@@ -100,9 +93,21 @@ function renderPagesVisibility() {
 }
 
 function hideAllPages() {
-  ["page-home", "page-session", "page-challenges", "page-community"].forEach((id) => {
+  ["page-home", "page-session", "page-challenges", "page-community", "page-profile"].forEach((id) => {
     document.getElementById(id).classList.add("hidden");
   });
+}
+
+function getInitialState() {
+  return {
+    onboarded: false,
+    player: null,
+    sessions: [],
+    skillXp: Object.fromEntries(SKILLS.map((s) => [s, 0])),
+    badges: [],
+    challenges: [],
+    challengeWeek: null,
+  };
 }
 
 function renderAllPages() {
@@ -110,6 +115,7 @@ function renderAllPages() {
   renderSessionPage();
   renderChallengesPage();
   renderCommunityPage();
+  renderProfilePage();
 }
 
 function renderOnboarding() {
@@ -137,6 +143,8 @@ function renderOnboarding() {
       initialLevel: data.get("level"),
       weeklyFrequencyTarget: Number(data.get("frequency")),
       club: "Aigles de Lyon",
+      avatarDataUrl: "",
+      avatarName: "",
     };
 
     appState.challenges = createWeeklyChallenges(appState.player.weeklyFrequencyTarget);
@@ -156,7 +164,7 @@ function bootstrapDemoProgress() {
 
   appState.skillXp = {
     Technique: 420,
-    "Déplacements": 330,
+    "DÃ©placements": 330,
     Tactique: 260,
     Physique: 390,
     Matchs: 280,
@@ -169,8 +177,8 @@ function bootstrapDemoProgress() {
       duration: 75,
       friendTag: "Lucas",
       photoName: "",
-      comment: "Routine services + retours croisés.",
-      skills: ["Technique", "Déplacements"],
+      comment: "Routine services + retours croisÃ©s.",
+      skills: ["Technique", "DÃ©placements"],
       xp: 85,
       performedAt: dateDaysAgo(1).slice(0, 10),
       createdAt: dateDaysAgo(1),
@@ -181,7 +189,7 @@ function bootstrapDemoProgress() {
       duration: 50,
       friendTag: "",
       photoName: "cardio.jpg",
-      comment: "Fractionné + gainage.",
+      comment: "FractionnÃ© + gainage.",
       skills: ["Physique"],
       xp: 70,
       performedAt: dateDaysAgo(2).slice(0, 10),
@@ -201,8 +209,8 @@ function bootstrapDemoProgress() {
     },
   ];
 
-  unlockBadge(true, "🥇 Premier pas: 1 séance enregistrée");
-  unlockBadge(true, "🎮 Profil starter débloqué");
+  unlockBadge(true, "ðŸ¥‡ Premier pas: 1 sÃ©ance enregistrÃ©e");
+  unlockBadge(true, "ðŸŽ® Profil starter dÃ©bloquÃ©");
 }
 
 function renderHomePage() {
@@ -210,15 +218,15 @@ function renderHomePage() {
   const totalXp = getTotalXp();
   const global = xpToLevel(totalXp);
   const recent = [...appState.sessions].slice(-3).reverse();
-  const badgeList = appState.badges.length ? appState.badges : ["🏁 Premier objectif: ajouter une séance"];
+  const badgeList = appState.badges.length ? appState.badges : ["ðŸ Premier objectif: ajouter une sÃ©ance"];
 
   el.innerHTML = `
     <section class="hero-card">
-      <div class="pixel-avatar-wrap" aria-hidden="true">${pixelBadmintonAvatar()}</div>
+      <div class="pixel-avatar-wrap">${renderAvatarMarkup(appState.player, appState.player.name)}</div>
       <div>
         <p class="hero-label">Joueur</p>
         <h2 class="player-name">${appState.player.name}</h2>
-        <p class="hero-xp">Niveau ${global.level} • ${totalXp} XP</p>
+        <p class="hero-xp">Niveau ${global.level} â€¢ ${totalXp} XP</p>
       </div>
     </section>
 
@@ -226,16 +234,16 @@ function renderHomePage() {
     <div class="xp-bar"><span style="width:${global.progressPercent}%; --bar-start:#4ff8b8; --bar-end:#25b8ff;"></span></div>
     <p class="notice">XP actuel: ${global.currentInLevel}/${global.nextLevelTarget}</p>
 
-    <h3>Progression par compétence</h3>
+    <h3>Progression par compÃ©tence</h3>
     ${SKILLS.map((skill) => renderSkillRow(skill)).join("")}
 
     <h3>Badges</h3>
     ${badgeList.map((b) => `<div class="badge-item">${b}</div>`).join("")}
 
-    <h3>Dernières séances</h3>
-    ${recent.length ? recent.map(renderSessionItem).join("") : '<p class="notice">Aucune séance enregistrée.</p>'}
+    <h3>DerniÃ¨res sÃ©ances</h3>
+    ${recent.length ? recent.map(renderSessionItem).join("") : '<p class="notice">Aucune sÃ©ance enregistrÃ©e.</p>'}
 
-    <button id="go-session" class="secondary">Ajouter une séance</button>
+    <button id="go-session" class="secondary">Ajouter une sÃ©ance</button>
   `;
 
   el.querySelector("#go-session").addEventListener("click", () => {
@@ -266,31 +274,31 @@ function renderSessionPage() {
     .join("");
 
   el.innerHTML = `
-    <h2>Ajouter une séance</h2>
+    <h2>Ajouter une sÃ©ance</h2>
 
     <form id="session-form" class="stack">
       <label>
-        Date de la séance
+        Date de la sÃ©ance
         <input type="date" name="sessionDate" max="${todayIso}" value="${todayIso}" required />
       </label>
 
       <label>
-        Type de séance
+        Type de sÃ©ance
         <select name="type" required>
-          <option value="training">Entraînement badminton</option>
-          <option value="match_practice">Match (entraînement)</option>
+          <option value="training">EntraÃ®nement badminton</option>
+          <option value="match_practice">Match (entraÃ®nement)</option>
           <option value="match_official">Match officiel</option>
           <option value="cardio">Physique / cardio</option>
         </select>
       </label>
 
       <label>
-        Durée (minutes)
+        DurÃ©e (minutes)
         <input type="number" name="duration" min="20" max="240" required value="60" />
       </label>
 
       <fieldset>
-        <legend>Compétences travaillées</legend>
+        <legend>CompÃ©tences travaillÃ©es</legend>
         <div class="inline">
           ${SKILLS.map((skill) => `<label><input type="checkbox" name="skills" value="${skill}" /> ${skill}</label>`).join("")}
         </div>
@@ -299,7 +307,7 @@ function renderSessionPage() {
       <label>
         Tagger un ami
         <select name="friendTag">
-          <option value="">Aucun ami taggé</option>
+          <option value="">Aucun ami taggÃ©</option>
           ${friendOptions}
         </select>
       </label>
@@ -311,10 +319,10 @@ function renderSessionPage() {
 
       <label>
         Commentaire
-        <textarea name="comment" rows="2" maxlength="180" placeholder="Smash + déplacements latéraux"></textarea>
+        <textarea name="comment" rows="2" maxlength="180" placeholder="Smash + dÃ©placements latÃ©raux"></textarea>
       </label>
 
-      <button type="submit">Valider la séance</button>
+      <button type="submit">Valider la sÃ©ance</button>
       <p id="session-feedback" class="notice"></p>
     </form>
   `;
@@ -335,20 +343,20 @@ async function handleSessionSubmit(e) {
 
   if (!skills.length) {
     feedback.className = "error";
-    feedback.textContent = "Sélectionnez au moins une compétence travaillée.";
+    feedback.textContent = "SÃ©lectionnez au moins une compÃ©tence travaillÃ©e.";
     return;
   }
 
   if (!sessionDate) {
     feedback.className = "error";
-    feedback.textContent = "Sélectionnez une date pour la séance.";
+    feedback.textContent = "SÃ©lectionnez une date pour la sÃ©ance.";
     return;
   }
 
   const todayIso = getTodayIsoDate();
   if (sessionDate > todayIso) {
     feedback.className = "error";
-    feedback.textContent = "La date de séance ne peut pas être dans le futur.";
+    feedback.textContent = "La date de sÃ©ance ne peut pas Ãªtre dans le futur.";
     return;
   }
 
@@ -389,12 +397,12 @@ async function handleSessionSubmit(e) {
   saveState();
 
   feedback.className = "notice";
-  feedback.textContent = `Séance enregistrée: +${xp} XP 🎉`;
+  feedback.textContent = `SÃ©ance enregistrÃ©e: +${xp} XP ðŸŽ‰`;
   form.reset();
   const dateInput = form.querySelector('input[name="sessionDate"]');
   if (dateInput) dateInput.value = todayIso;
 
-  alert(`Séance enregistrée avec succès (+${xp} XP) !`);
+  alert(`SÃ©ance enregistrÃ©e avec succÃ¨s (+${xp} XP) !`);
   activePage = "home";
   renderPagesVisibility();
   renderAllPages();
@@ -410,14 +418,14 @@ function renderChallengesPage() {
   }
 
   el.innerHTML = `
-    <h2>Défis hebdomadaires</h2>
+    <h2>DÃ©fis hebdomadaires</h2>
     ${appState.challenges.map((c) => `
       <div class="challenge-item">
         <strong>${c.title}</strong>
         <p class="notice">${c.description}</p>
         <div class="xp-bar"><span style="width:${Math.min(100, Math.round((c.progress / c.target) * 100))}%; --bar-start:#ffd24a; --bar-end:#ff7a00;"></span></div>
-        <p>${c.progress}/${c.target} ${c.completed ? "✅ Complété" : "⏳ En cours"}</p>
-        <p class="notice">Récompense: ${c.rewardXp} XP</p>
+        <p>${c.progress}/${c.target} ${c.completed ? "âœ… ComplÃ©tÃ©" : "â³ En cours"}</p>
+        <p class="notice">RÃ©compense: ${c.rewardXp} XP</p>
       </div>
     `).join("")}
   `;
@@ -430,7 +438,7 @@ function renderCommunityPage() {
   const sameClub = all.filter((p) => p.club === appState.player.club);
 
   el.innerHTML = `
-    <h2>Communauté</h2>
+    <h2>CommunautÃ©</h2>
     <h3>Classement entre amis</h3>
     ${all.map((p, idx) => renderRankItem(p, idx)).join("")}
 
@@ -439,11 +447,111 @@ function renderCommunityPage() {
   `;
 }
 
+function renderProfilePage() {
+  const el = document.getElementById("page-profile");
+  const player = appState.player;
+
+  el.innerHTML = `
+    <h2>Profil</h2>
+    <div class="profile-avatar-wrap">
+      ${renderAvatarMarkup(player, player.name)}
+    </div>
+
+    <form id="profile-form" class="stack">
+      <label>
+        Nom joueur
+        <input required name="name" minlength="2" maxlength="24" value="${escapeHtml(player.name || "")}" />
+      </label>
+
+      <label>
+        Club
+        <input required name="club" minlength="2" maxlength="48" value="${escapeHtml(player.club || "")}" />
+      </label>
+
+      <label>
+        Niveau
+        <select name="level">
+          <option value="debutant" ${player.initialLevel === "debutant" ? "selected" : ""}>Debutant</option>
+          <option value="intermediaire" ${player.initialLevel === "intermediaire" ? "selected" : ""}>Intermediaire</option>
+          <option value="avance" ${player.initialLevel === "avance" ? "selected" : ""}>Avance</option>
+        </select>
+      </label>
+
+      <label>
+        Frequence hebdo
+        <select name="frequency">
+          <option value="1" ${player.weeklyFrequencyTarget === 1 ? "selected" : ""}>1 seance / semaine</option>
+          <option value="2" ${player.weeklyFrequencyTarget === 2 ? "selected" : ""}>2 seances / semaine</option>
+          <option value="3" ${player.weeklyFrequencyTarget === 3 ? "selected" : ""}>3 seances / semaine</option>
+          <option value="4" ${player.weeklyFrequencyTarget >= 4 ? "selected" : ""}>4+ seances / semaine</option>
+        </select>
+      </label>
+
+      <label>
+        Photo de profil
+        <input type="file" name="avatarFile" accept="image/*" />
+      </label>
+
+      <div class="inline">
+        <button type="submit">Mettre a jour</button>
+        <button type="button" id="logout-btn" class="danger">Se deconnecter</button>
+      </div>
+      <p id="profile-feedback" class="notice"></p>
+    </form>
+  `;
+
+  el.querySelector("#profile-form").addEventListener("submit", handleProfileSubmit);
+  el.querySelector("#logout-btn").addEventListener("click", handleLogout);
+}
+
+async function handleProfileSubmit(e) {
+  e.preventDefault();
+  const form = e.currentTarget;
+  const data = new FormData(form);
+  const feedback = form.querySelector("#profile-feedback");
+
+  const name = String(data.get("name") || "").trim();
+  const club = String(data.get("club") || "").trim();
+  const level = String(data.get("level") || "debutant");
+  const frequency = Number(data.get("frequency"));
+
+  if (!name || !club) {
+    feedback.className = "error";
+    feedback.textContent = "Nom et club sont obligatoires.";
+    return;
+  }
+
+  const avatarFile = data.get("avatarFile");
+  const hasNewAvatar = avatarFile && avatarFile.size > 0;
+
+  appState.player.name = name;
+  appState.player.club = club;
+  appState.player.initialLevel = level;
+  appState.player.weeklyFrequencyTarget = Math.max(1, Math.min(4, frequency || 1));
+
+  if (hasNewAvatar) {
+    appState.player.avatarDataUrl = await readFileAsDataUrl(avatarFile);
+    appState.player.avatarName = avatarFile.name || "";
+  }
+
+  saveState();
+  feedback.className = "notice";
+  feedback.textContent = "Profil mis a jour.";
+  renderAllPages();
+}
+
+function handleLogout() {
+  localStorage.removeItem(STORAGE_KEY);
+  Object.assign(appState, getInitialState());
+  activePage = "home";
+  renderAll();
+}
+
 function renderRankItem(player, idx) {
   return `
     <div class="rank-item ${player.isYou ? "you" : ""}">
       <span>${idx + 1}. ${player.name} ${player.isYou ? "(vous)" : ""}</span>
-      <strong>${xpToLevel(player.xp).level} • ${player.xp} XP</strong>
+      <strong>${xpToLevel(player.xp).level} â€¢ ${player.xp} XP</strong>
     </div>
   `;
 }
@@ -455,13 +563,13 @@ function renderSessionItem(session) {
 
   return `
     <div class="session-item">
-      <strong>${sessionLabel(session.type)} • +${session.xp} XP</strong>
-      <p class="notice">${session.duration} min — ${dateLabel}</p>
+      <strong>${sessionLabel(session.type)} â€¢ +${session.xp} XP</strong>
+      <p class="notice">${session.duration} min â€” ${dateLabel}</p>
       <div class="chips">${session.skills.map((s) => `<span class="chip">${s}</span>`).join("")}</div>
-      ${session.friendTag ? `<p class="notice">🤝 Ami taggé: ${session.friendTag}</p>` : ""}
-      ${session.photoName ? `<p class="notice">📷 Photo: ${session.photoName}</p>` : ""}
-      ${session.photoDataUrl ? `<img class="session-photo" src="${session.photoDataUrl}" alt="Photo de séance ${session.photoName || ""}" />` : ""}
-      ${session.comment ? `<p>“${session.comment}”</p>` : ""}
+      ${session.friendTag ? `<p class="notice">ðŸ¤ Ami taggÃ©: ${session.friendTag}</p>` : ""}
+      ${session.photoName ? `<p class="notice">ðŸ“· Photo: ${session.photoName}</p>` : ""}
+      ${session.photoDataUrl ? `<img class="session-photo" src="${session.photoDataUrl}" alt="Photo de sÃ©ance ${session.photoName || ""}" />` : ""}
+      ${session.comment ? `<p>â€œ${session.comment}â€</p>` : ""}
     </div>
   `;
 }
@@ -470,12 +578,12 @@ function evaluateBadges() {
   const sessions = appState.sessions.length;
   const totalXp = getTotalXp();
 
-  unlockBadge(sessions >= 1, "🥇 Premier pas: 1 séance enregistrée");
-  unlockBadge(sessions >= 10, "🔥 Régulier: 10 séances complétées");
-  unlockBadge(totalXp >= 1000, "💎 1000 XP atteints");
+  unlockBadge(sessions >= 1, "ðŸ¥‡ Premier pas: 1 sÃ©ance enregistrÃ©e");
+  unlockBadge(sessions >= 10, "ðŸ”¥ RÃ©gulier: 10 sÃ©ances complÃ©tÃ©es");
+  unlockBadge(totalXp >= 1000, "ðŸ’Ž 1000 XP atteints");
 
   const uniqueDays = new Set(appState.sessions.map((s) => (s.performedAt || s.createdAt.slice(0, 10)))).size;
-  unlockBadge(uniqueDays >= 7, "📅 Persévérant: 7 jours d'activité");
+  unlockBadge(uniqueDays >= 7, "ðŸ“… PersÃ©vÃ©rant: 7 jours d'activitÃ©");
 }
 
 function unlockBadge(condition, badgeName) {
@@ -488,8 +596,8 @@ function createWeeklyChallenges(freq) {
   return [
     {
       id: "sessions",
-      title: `Compléter ${Math.max(2, freq)} séances cette semaine`,
-      description: "Validez vos séances pour progresser régulièrement.",
+      title: `ComplÃ©ter ${Math.max(2, freq)} sÃ©ances cette semaine`,
+      description: "Validez vos sÃ©ances pour progresser rÃ©guliÃ¨rement.",
       target: Math.max(2, freq),
       progress: 0,
       rewardXp: 80,
@@ -498,7 +606,7 @@ function createWeeklyChallenges(freq) {
     {
       id: "cardio",
       title: "Travailler le cardio 2 fois",
-      description: "Ajoutez 2 séances de type Physique / cardio.",
+      description: "Ajoutez 2 sÃ©ances de type Physique / cardio.",
       target: 2,
       progress: 0,
       rewardXp: 60,
@@ -506,8 +614,8 @@ function createWeeklyChallenges(freq) {
     },
     {
       id: "match",
-      title: "Participer à 1 match",
-      description: "Match entraînement ou officiel.",
+      title: "Participer Ã  1 match",
+      description: "Match entraÃ®nement ou officiel.",
       target: 1,
       progress: 0,
       rewardXp: 50,
@@ -529,7 +637,7 @@ function evaluateChallenges() {
       appState.skillXp.Technique += Math.round(c.rewardXp * 0.3);
       appState.skillXp.Physique += Math.round(c.rewardXp * 0.3);
       appState.skillXp.Tactique += Math.round(c.rewardXp * 0.4);
-      unlockBadge(true, `🏆 Défi complété: ${c.title}`);
+      unlockBadge(true, `ðŸ† DÃ©fi complÃ©tÃ©: ${c.title}`);
     }
   }
 }
@@ -559,13 +667,31 @@ function xpToLevel(xp) {
 
 function sessionLabel(type) {
   return {
-    training: "Entraînement badminton",
-    match_practice: "Match entraînement",
+    training: "EntraÃ®nement badminton",
+    match_practice: "Match entraÃ®nement",
     match_official: "Match officiel",
     cardio: "Physique / cardio",
-  }[type] ?? "Séance";
+  }[type] ?? "SÃ©ance";
 }
 
+
+function renderAvatarMarkup(player, altName) {
+  if (player?.avatarDataUrl) {
+    const safeAlt = escapeHtml(altName || "Photo de profil");
+    return `<img class="avatar-photo" src="${player.avatarDataUrl}" alt="${safeAlt}" />`;
+  }
+
+  return `<div aria-hidden="true">${pixelBadmintonAvatar()}</div>`;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
 
 function readFileAsDataUrl(file) {
   return new Promise((resolve, reject) => {
@@ -603,7 +729,7 @@ function slugify(str) {
 
 function pixelBadmintonAvatar() {
   return `
-    <svg viewBox="0 0 260 340" width="112" height="112" role="img" aria-label="Avatar joueur de badminton illustré" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 260 340" width="112" height="112" role="img" aria-label="Avatar joueur de badminton illustrÃ©" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="shirtRed" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stop-color="#d81f35"/>
@@ -655,3 +781,6 @@ function pixelBadmintonAvatar() {
     </svg>
   `;
 }
+
+
+

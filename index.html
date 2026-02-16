@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
@@ -9,8 +9,8 @@
   <body>
     <main class="app-shell">
       <header class="top-header">
-        <h1>🏸 Badminton Progress</h1>
-        <p class="subtitle">Suivez vos progrès, gagnez de l'XP, grimpez au classement.</p>
+        <h1>ðŸ¸ Badminton Progress</h1>
+        <p class="subtitle">Suivez vos progrÃ¨s, gagnez de l'XP, grimpez au classement.</p>
       </header>
 
       <section id="onboarding-card" class="card"></section>
@@ -19,13 +19,15 @@
       <section id="page-session" class="card hidden"></section>
       <section id="page-challenges" class="card hidden"></section>
       <section id="page-community" class="card hidden"></section>
+      <section id="page-profile" class="card hidden"></section>
     </main>
 
     <nav id="bottom-nav" class="bottom-nav hidden" aria-label="Navigation principale">
       <button data-page="home" class="nav-item active">Accueil</button>
-      <button data-page="session" class="nav-item">Séance</button>
-      <button data-page="challenges" class="nav-item">Défis</button>
-      <button data-page="community" class="nav-item">Communauté</button>
+      <button data-page="session" class="nav-item">SÃ©ance</button>
+      <button data-page="challenges" class="nav-item">DÃ©fis</button>
+      <button data-page="community" class="nav-item">CommunautÃ©</button>
+      <button data-page="profile" class="nav-item">Profil</button>
     </nav>
 
     <template id="onboarding-template">
@@ -38,24 +40,26 @@
         <label>
           Niveau initial
           <select name="level">
-            <option value="debutant">Débutant</option>
-            <option value="intermediaire">Intermédiaire</option>
-            <option value="avance">Avancé</option>
+            <option value="debutant">DÃ©butant</option>
+            <option value="intermediaire">IntermÃ©diaire</option>
+            <option value="avance">AvancÃ©</option>
           </select>
         </label>
         <label>
-          Fréquence hebdo
+          FrÃ©quence hebdo
           <select name="frequency">
-            <option value="1">1 séance / semaine</option>
-            <option value="2">2 séances / semaine</option>
-            <option value="3">3 séances / semaine</option>
-            <option value="4">4+ séances / semaine</option>
+            <option value="1">1 sÃ©ance / semaine</option>
+            <option value="2">2 sÃ©ances / semaine</option>
+            <option value="3">3 sÃ©ances / semaine</option>
+            <option value="4">4+ sÃ©ances / semaine</option>
           </select>
         </label>
-        <button type="submit">Démarrer mon suivi</button>
+        <button type="submit">DÃ©marrer mon suivi</button>
       </form>
     </template>
 
     <script type="module" src="app.js"></script>
   </body>
 </html>
+
+
