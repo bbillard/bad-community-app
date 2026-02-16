@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Badminton Progress</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="top-header">
+        <h1>🏸 Badminton Progress</h1>
+        <p class="subtitle">Suivez vos progrès, gagnez de l'XP, grimpez au classement.</p>
+      </header>
+
+      <section id="onboarding-card" class="card"></section>
+
+      <section id="page-home" class="card hidden"></section>
+      <section id="page-session" class="card hidden"></section>
+      <section id="page-challenges" class="card hidden"></section>
+      <section id="page-community" class="card hidden"></section>
+      <section id="page-profile" class="card hidden"></section>
+    </main>
+
+    <nav id="bottom-nav" class="bottom-nav hidden" aria-label="Navigation principale">
+      <button data-page="home" class="nav-item active">Accueil</button>
+      <button data-page="session" class="nav-item">Séance</button>
+      <button data-page="challenges" class="nav-item">Défis</button>
+      <button data-page="community" class="nav-item">Communauté</button>
+      <button data-page="profile" class="nav-item">Profil</button>
+    </nav>
+
+    <template id="onboarding-template">
+      <h2>Onboarding</h2>
+      <form id="onboarding-form" class="stack">
+        <label>
+          Nom joueur
+          <input required name="name" minlength="2" maxlength="24" placeholder="Alex" />
+        </label>
+        <label>
+          Niveau initial
+          <select name="level">
+            <option value="debutant">Débutant</option>
+            <option value="intermediaire">Intermédiaire</option>
+            <option value="avance">Avancé</option>
+          </select>
+        </label>
+        <label>
+          Fréquence hebdo
+          <select name="frequency">
+            <option value="1">1 séance / semaine</option>
+            <option value="2">2 séances / semaine</option>
+            <option value="3">3 séances / semaine</option>
+            <option value="4">4+ séances / semaine</option>
+          </select>
+        </label>
+        <button type="submit">Démarrer mon suivi</button>
+      </form>
+    </template>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
