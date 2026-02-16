@@ -291,7 +291,7 @@ button.secondary {
   bottom: 0;
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 0.35rem;
   padding: 0.55rem;
   background: linear-gradient(180deg, rgba(9, 36, 65, 0.98), rgba(6, 25, 46, 0.98));
@@ -313,4 +313,27 @@ button.secondary {
   background: linear-gradient(130deg, #5bffb3, #36c5ff);
   color: #07243b;
   border-color: #e3fcff;
+}
+
+
+.profile-preview {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.8rem;
+}
+
+.profile-avatar {
+  width: 112px;
+  height: 112px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid rgba(200, 235, 255, 0.7);
+  display: block;
+}
+
+.danger-btn {
+  width: 100%;
+  margin-top: 0.75rem;
+  background: linear-gradient(130deg, #ff8d8d, #ff5f6d);
+  color: #3b070b;
 }

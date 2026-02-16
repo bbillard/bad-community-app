@@ -87,6 +87,7 @@ function renderPagesVisibility() {
     session: document.getElementById("page-session"),
     challenges: document.getElementById("page-challenges"),
     community: document.getElementById("page-community"),
+    profile: document.getElementById("page-profile"),
   };
 
   Object.entries(pages).forEach(([key, el]) => {
@@ -100,7 +101,7 @@ function renderPagesVisibility() {
 }
 
 function hideAllPages() {
-  ["page-home", "page-session", "page-challenges", "page-community"].forEach((id) => {
+  ["page-home", "page-session", "page-challenges", "page-community", "page-profile"].forEach((id) => {
     document.getElementById(id).classList.add("hidden");
   });
 }
@@ -110,6 +111,7 @@ function renderAllPages() {
   renderSessionPage();
   renderChallengesPage();
   renderCommunityPage();
+  renderProfilePage();
 }
 
 function renderOnboarding() {
@@ -137,6 +139,7 @@ function renderOnboarding() {
       initialLevel: data.get("level"),
       weeklyFrequencyTarget: Number(data.get("frequency")),
       club: "Aigles de Lyon",
+      profilePhotoDataUrl: "",
     };
 
     appState.challenges = createWeeklyChallenges(appState.player.weeklyFrequencyTarget);
@@ -214,7 +217,7 @@ function renderHomePage() {
 
   el.innerHTML = `
     <section class="hero-card">
-      <div class="pixel-avatar-wrap" aria-hidden="true">${pixelBadmintonAvatar()}</div>
+      <div class="pixel-avatar-wrap" aria-hidden="true">${renderPlayerAvatar()}</div>
       <div>
         <p class="hero-label">Joueur</p>
         <h2 class="player-name">${appState.player.name}</h2>
@@ -439,6 +442,103 @@ function renderCommunityPage() {
   `;
 }
 
+function renderProfilePage() {
+  const el = document.getElementById("page-profile");
+  const player = appState.player;
+
+  el.innerHTML = `
+    <h2>Profil</h2>
+    <div class="profile-preview">${renderPlayerAvatar()}</div>
+
+    <form id="profile-form" class="stack">
+      <label>
+        Nom joueur
+        <input name="name" minlength="2" maxlength="24" required value="${escapeHtml(player.name || "")}" />
+      </label>
+
+      <label>
+        Club
+        <input name="club" maxlength="40" value="${escapeHtml(player.club || "")}" />
+      </label>
+
+      <label>
+        Niveau
+        <select name="level">
+          <option value="debutant" ${player.initialLevel === "debutant" ? "selected" : ""}>Débutant</option>
+          <option value="intermediaire" ${player.initialLevel === "intermediaire" ? "selected" : ""}>Intermédiaire</option>
+          <option value="avance" ${player.initialLevel === "avance" ? "selected" : ""}>Avancé</option>
+        </select>
+      </label>
+
+      <label>
+        Fréquence hebdo
+        <select name="frequency">
+          <option value="1" ${player.weeklyFrequencyTarget === 1 ? "selected" : ""}>1 séance / semaine</option>
+          <option value="2" ${player.weeklyFrequencyTarget === 2 ? "selected" : ""}>2 séances / semaine</option>
+          <option value="3" ${player.weeklyFrequencyTarget === 3 ? "selected" : ""}>3 séances / semaine</option>
+          <option value="4" ${player.weeklyFrequencyTarget >= 4 ? "selected" : ""}>4+ séances / semaine</option>
+        </select>
+      </label>
+
+      <label>
+        Photo de profil
+        <input type="file" name="profilePhoto" accept="image/*" />
+      </label>
+
+      <div class="inline">
+        <button type="submit">Enregistrer le profil</button>
+        <button type="button" id="remove-profile-photo" class="secondary">Retirer la photo</button>
+      </div>
+      <p id="profile-feedback" class="notice"></p>
+    </form>
+
+    <button id="logout-btn" class="danger-btn" type="button">Se déconnecter</button>
+  `;
+
+  const form = el.querySelector("#profile-form");
+  const feedback = el.querySelector("#profile-feedback");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const data = new FormData(form);
+    const file = data.get("profilePhoto");
+
+    player.name = String(data.get("name") || "").trim();
+    player.club = String(data.get("club") || "").trim() || "Sans club";
+    player.initialLevel = String(data.get("level") || "debutant");
+    player.weeklyFrequencyTarget = Number(data.get("frequency") || 1);
+
+    if (file && file.size > 0) {
+      player.profilePhotoDataUrl = await readFileAsDataUrl(file);
+    }
+
+    saveState();
+    feedback.className = "notice";
+    feedback.textContent = "Profil mis à jour ✅";
+    renderAllPages();
+  });
+
+  el.querySelector("#remove-profile-photo").addEventListener("click", () => {
+    player.profilePhotoDataUrl = "";
+    saveState();
+    renderAllPages();
+  });
+
+  el.querySelector("#logout-btn").addEventListener("click", () => {
+    const ok = confirm("Se déconnecter ? Toutes les données locales seront supprimées.");
+    if (!ok) return;
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  });
+}
+
+function renderPlayerAvatar() {
+  if (appState.player?.profilePhotoDataUrl) {
+    return `<img class="profile-avatar" src="${appState.player.profilePhotoDataUrl}" alt="Photo de profil" />`;
+  }
+  return pixelBadmintonAvatar();
+}
+
 function renderRankItem(player, idx) {
   return `
     <div class="rank-item ${player.isYou ? "you" : ""}">
@@ -566,6 +666,15 @@ function sessionLabel(type) {
   }[type] ?? "Séance";
 }
 
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
 function readFileAsDataUrl(file) {
   return new Promise((resolve, reject) => {
